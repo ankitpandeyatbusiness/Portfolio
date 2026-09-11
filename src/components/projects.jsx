@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, TrendingUp, AlertTriangle } from "lucide-react";
 import { useReveal } from "../hooks/use-reveal";
-import { BrowserMockup, PhoneMockup } from "./Mockups";
+import { BrowserMockup, PhoneMockup } from "./mockups";
 
 function useIsMobile() {
     const [mobile, setMobile] = useState(false);
