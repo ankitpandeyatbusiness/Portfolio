@@ -1,27 +1,104 @@
-import { ExternalLink, Smartphone } from "lucide-react";
+import { ExternalLink, Smartphone, Wifi, BatteryFull, SignalHigh } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function PhoneMockup({ src, href, cta, label }) {
+    const containerRef = useRef(null);
+    const [scale, setScale] = useState(1);
+    const [time, setTime] = useState("9:41");
+
+    const MOBILE_WIDTH = 375;
+
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            setTime(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' AM', '').replace(' PM', ''));
+        };
+        updateTime();
+        const interval = setInterval(updateTime, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    setScale(entry.contentRect.width / MOBILE_WIDTH);
+                }
+            }
+        });
+
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, []);
+
+    const safeScale = scale > 0 ? scale : 1;
+    const isVideo = src?.endsWith(".mp4");
+
     return (
         <div className="relative mx-auto w-67.5 sm:w-75">
             <div className="absolute -inset-10 -z-10 rounded-full glow-soft" />
-            <div className="rounded-[2.6rem] border border-border bg-card p-3 glow-ring">
-                <div className="relative overflow-hidden rounded-4xl bg-surface">
-                    <div className="absolute left-1/2 top-2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-background/80" />
-                    <div className="aspect-9/19 w-full overflow-hidden">
+            <div className="rounded-[2.6rem] border-[5px] border-border bg-card p-1.5 glow-ring">
+                <div className="relative flex flex-col overflow-hidden rounded-[2.1rem] bg-background aspect-9/19">
+
+                    <div className="relative z-20 flex w-full shrink-0 items-center justify-between bg-background px-4 pb-2 pt-3 text-[11px] font-semibold tracking-wider text-foreground pointer-events-none">
+                        <span className="pl-1 w-10 text-left">{time}</span>
+                        <div className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-foreground shadow-sm" />
+                        <div className="flex w-10 items-center justify-end gap-1.5 pr-1">
+                            <SignalHigh className="h-3.5 w-3.5" />
+                            <Wifi className="h-3 w-3" />
+                            <BatteryFull className="h-4 w-4" />
+                        </div>
+                    </div>
+
+                    <div
+                        ref={containerRef}
+                        className="relative flex-1 w-full overflow-hidden bg-surface z-10"
+                    >
                         {src || href ? (
-                            <iframe
-                                src={src ?? href}
-                                title={`${label} interactive demo`}
-                                className="h-full border-0"
-                                // Adds 20px to push the native scrollbar out of the viewable box while keeping it scrollable
+                            <div
                                 style={{
-                                    width: "calc(100% + 20px)",
-                                    pointerEvents: "auto"
+                                    width: `${MOBILE_WIDTH}px`,
+                                    height: `${100 / safeScale}%`,
+                                    transform: `scale(${safeScale})`,
+                                    transformOrigin: "top left",
+                                    overflow: "hidden",
+                                    WebkitOverflowScrolling: "touch",
                                 }}
-                                loading="lazy"
-                                allow="fullscreen"
-                            />
+                            >
+                                {isVideo ? (
+                                    <video
+                                        src={src}
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            objectFit: "cover",
+                                            pointerEvents: "auto",
+                                        }}
+                                    />
+                                ) : (
+                                    <iframe
+                                        src={src ?? href}
+                                        title={`${label} interactive demo`}
+                                        style={{
+                                            width: `calc(100% + 20px)`,
+                                            height: "100%",
+                                            border: "none",
+                                            pointerEvents: "auto",
+                                            touchAction: "auto",
+                                        }}
+                                        scrolling="yes"
+                                        loading="lazy"
+                                        allow="fullscreen"
+                                    />
+                                )}
+                            </div>
                         ) : (
                             <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
                                 <Smartphone className="h-7 w-7 text-primary" />
@@ -39,7 +116,7 @@ export function PhoneMockup({ src, href, cta, label }) {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
                 >
                     {cta}
                     <ExternalLink className="h-4 w-4" />
@@ -49,11 +126,11 @@ export function PhoneMockup({ src, href, cta, label }) {
     );
 }
 
-export function BrowserMockup({ label, url, href, cta, wide = true }) {
+export function BrowserMockup({ label, url, href, src, cta, wide = true }) {
     const containerRef = useRef(null);
     const [scale, setScale] = useState(1);
 
-    // Force a desktop resolution for the iframe (16:10 aspect ratio)
+    // Explicit 16:10 desktop dimensions to prevent black bars
     const DESKTOP_WIDTH = 1024;
     const DESKTOP_HEIGHT = 640;
 
@@ -61,16 +138,20 @@ export function BrowserMockup({ label, url, href, cta, wide = true }) {
         const container = containerRef.current;
         if (!container) return;
 
-        // Dynamically scale the iframe down to fit the container visually
         const observer = new ResizeObserver((entries) => {
             for (let entry of entries) {
-                setScale(entry.contentRect.width / DESKTOP_WIDTH);
+                if (entry.contentRect.width > 0) {
+                    setScale(entry.contentRect.width / DESKTOP_WIDTH);
+                }
             }
         });
 
         observer.observe(container);
         return () => observer.disconnect();
     }, []);
+
+    const safeScale = scale > 0 ? scale : 1;
+    const isVideo = src?.endsWith(".mp4");
 
     return (
         <div className={`relative mx-auto w-full ${wide ? "" : "max-w-md"}`}>
@@ -87,30 +168,49 @@ export function BrowserMockup({ label, url, href, cta, wide = true }) {
 
                 <div
                     ref={containerRef}
-                    className="relative aspect-16/10 w-full overflow-hidden bg-surface"
+                    className="relative aspect-16/10 w-full overflow-hidden bg-surface z-10"
                 >
-                    {href ? (
+                    {src || href ? (
                         <div
                             style={{
                                 width: `${DESKTOP_WIDTH}px`,
-                                height: `${DESKTOP_HEIGHT}px`,
-                                transform: `scale(${scale})`,
+                                height: `${DESKTOP_HEIGHT}px`, // Fixed height forces the perfect 16:10 box
+                                transform: `scale(${safeScale})`,
                                 transformOrigin: "top left",
-                                overflow: "hidden", // Clips the extra scrollbar width
+                                overflow: "hidden",
+                                WebkitOverflowScrolling: "touch",
                             }}
                         >
-                            <iframe
-                                src={href}
-                                title={`${label} live website preview`}
-                                style={{
-                                    width: `${DESKTOP_WIDTH + 20}px`, // Make iframe 20px wider than wrapper to push scrollbar out of sight
-                                    height: "100%",
-                                    border: "none",
-                                    pointerEvents: "auto" // Forces the iframe to capture scroll wheel events
-                                }}
-                                loading="lazy"
-                                allow="fullscreen"
-                            />
+                            {isVideo ? (
+                                <video
+                                    src={src}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover", // Ensures the video scales up to crop out any black bars
+                                        pointerEvents: "auto",
+                                    }}
+                                />
+                            ) : (
+                                <iframe
+                                    src={href}
+                                    title={`${label} live website preview`}
+                                    style={{
+                                        width: `${DESKTOP_WIDTH + 20}px`,
+                                        height: "100%",
+                                        border: "none",
+                                        pointerEvents: "auto",
+                                        touchAction: "auto",
+                                    }}
+                                    scrolling="yes"
+                                    loading="lazy"
+                                    allow="fullscreen"
+                                />
+                            )}
                         </div>
                     ) : (
                         <div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center">

@@ -1,5 +1,5 @@
 import { ArrowRight, Zap } from "lucide-react";
-import { useReveal } from "../hooks/use-reveal"; // Changed to relative path
+import { useReveal } from "../hooks/use-reveal";
 
 export function Hero() {
     const a = useReveal(0);
@@ -9,7 +9,7 @@ export function Hero() {
             <div className="pointer-events-none absolute inset-0 -z-10 grid-backdrop opacity-60" />
             <div
                 ref={a.ref}
-                className={`${a.className} mx-auto max-w-4xl px-5 pb-24 pt-24 text-center sm:pb-32 sm:pt-32`}
+                className={`${a.className} mx-auto max-w-4xl px-5 pb-12 pt-12 text-center sm:pb-12 sm:pt-16`}
                 style={a.style}
             >
                 <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground">

@@ -21,6 +21,8 @@ const projects = [
         tag: "Smart Office & Staff Management",
         visual: "browser",
         url: "workedumusicindia.com",
+        srcDesktop: "/workedu-desktop.mp4",
+        srcMobile: "/workedu-mobile.mp4",
         href: "https://www.workedumusicindia.com",
         cta: "View Live App",
         problem:
@@ -79,7 +81,9 @@ const projects = [
         name: "CinePlay",
         tag: "Live Video App — Ready for Your Business",
         visual: "phone",
-        src: "https://appetize.io/embed/b_bwrbph3d6fr3w5d7zyxv3a4moi",
+        src: "/CinePlay-preview.mp4",
+        href: "https://appetize.io/embed/b_bwrbph3d6fr3w5d7zyxv3a4moi",
+        cta: "Visit Live App",
         problem:
             "Customers and students get distracted quickly. If they leave your app or website, you lose money.",
         gainsTitle: "How it Boosts Profit",
@@ -121,7 +125,8 @@ function ProjectBlock({ project, index }) {
     const usePhone = isMobile || project.name === "CinePlay";
 
     const phoneProps = { label: project.name };
-    if (project.src) phoneProps.src = project.src;
+    const phoneSrc = project.srcMobile || project.src;
+    if (phoneSrc) phoneProps.src = phoneSrc;
     if (project.href) phoneProps.href = project.href;
     if (project.cta) phoneProps.cta = project.cta;
 
@@ -131,6 +136,8 @@ function ProjectBlock({ project, index }) {
         cta: project.cta ?? "View Live",
         wide: true,
     };
+    const browserSrc = project.srcDesktop || project.src;
+    if (browserSrc) browserProps.src = browserSrc;
     if (project.href) browserProps.href = project.href;
 
     return (
@@ -196,7 +203,7 @@ export function Projects() {
     const head = useReveal();
 
     return (
-        <section id="work" className="mx-auto max-w-6xl px-5 py-24 sm:py-32">
+        <section id="work" className="mx-auto max-w-6xl px-5 pt-12 pb-24 sm:pt-16 sm:pb-32">
             <div ref={head.ref} className={`${head.className} max-w-2xl`} style={head.style}>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                     Selected work
