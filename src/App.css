@@ -1,1 +1,144 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 8px);
+    --radius-3xl: calc(var(--radius) + 12px);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-surface: var(--surface);
+    --color-glow: var(--glow);
+}
+
+:root {
+    --radius: 0.875rem;
+    --background: oklch(0.995 0.002 250);
+    --foreground: oklch(0.19 0.035 260);
+    --surface: oklch(0.975 0.005 250);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.19 0.035 260);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.19 0.035 260);
+    --primary: oklch(0.5 0.19 258);
+    --primary-foreground: oklch(0.99 0.005 250);
+    --secondary: oklch(0.96 0.008 250);
+    --secondary-foreground: oklch(0.24 0.035 260);
+    --muted: oklch(0.965 0.006 250);
+    --muted-foreground: oklch(0.52 0.025 258);
+    --accent: oklch(0.63 0.16 190);
+    --accent-foreground: oklch(0.16 0.03 260);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.99 0.005 250);
+    --border: oklch(0.915 0.008 255);
+    --input: oklch(0.915 0.008 255);
+    --ring: oklch(0.5 0.19 258);
+    --glow: oklch(0.5 0.19 258 / 12%);
+}
+
+.dark {
+    --background: oklch(0.16 0.012 265);
+    --foreground: oklch(0.97 0.005 250);
+    --surface: oklch(0.205 0.015 265);
+    --card: oklch(0.21 0.016 265);
+    --card-foreground: oklch(0.97 0.005 250);
+    --popover: oklch(0.21 0.016 265);
+    --popover-foreground: oklch(0.97 0.005 250);
+    --primary: oklch(0.72 0.17 200);
+    --primary-foreground: oklch(0.15 0.02 265);
+    --secondary: oklch(0.26 0.02 265);
+    --secondary-foreground: oklch(0.96 0.005 250);
+    --muted: oklch(0.25 0.018 265);
+    --muted-foreground: oklch(0.72 0.02 258);
+    --accent: oklch(0.78 0.17 160);
+    --accent-foreground: oklch(0.16 0.02 265);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.98 0.005 250);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.72 0.17 200);
+    --glow: oklch(0.72 0.17 200 / 26%);
+}
+
+@layer base {
+    * {
+        border-color: var(--color-border);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+    }
+}
+
+@utility glow-ring {
+    box-shadow:
+        0 0 0 1px var(--color-border),
+        0 24px 60px -24px var(--glow);
+}
+
+@utility glow-soft {
+    box-shadow: 0 0 80px -20px var(--glow);
+}
+
+@utility text-gradient {
+    background-image: linear-gradient(100deg,
+            var(--color-foreground) 20%,
+            var(--color-primary) 60%,
+            var(--color-accent) 100%);
+    background-clip: text;
+    color: transparent;
+}
+
+@utility grid-backdrop {
+    background-image:
+        linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent 75%);
+}
+
+@utility scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
