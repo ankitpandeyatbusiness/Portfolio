@@ -1,33 +1,33 @@
 import { ExternalLink, Smartphone } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-export function PhoneMockup({
-    src,
-    href,
-    cta,
-    label,
-}) {
+export function PhoneMockup({ src, href, cta, label }) {
     return (
         <div className="relative mx-auto w-67.5 sm:w-75">
             <div className="absolute -inset-10 -z-10 rounded-full glow-soft" />
             <div className="rounded-[2.6rem] border border-border bg-card p-3 glow-ring">
                 <div className="relative overflow-hidden rounded-4xl bg-surface">
                     <div className="absolute left-1/2 top-2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-background/80" />
-                    <div className="aspect-9/19 w-full overflow-hidden scrollbar-hide">
+                    <div className="aspect-9/19 w-full overflow-hidden">
                         {src || href ? (
                             <iframe
                                 src={src ?? href}
                                 title={`${label} interactive demo`}
-                                className="h-full w-full border-0 overflow-hidden scrollbar-hide"
+                                className="h-full border-0"
+                                // Adds 20px to push the native scrollbar out of the viewable box while keeping it scrollable
+                                style={{
+                                    width: "calc(100% + 20px)",
+                                    pointerEvents: "auto"
+                                }}
                                 loading="lazy"
                                 allow="fullscreen"
-                                scrolling="no"
                             />
                         ) : (
                             <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
                                 <Smartphone className="h-7 w-7 text-primary" />
                                 <p className="font-display text-sm font-semibold">{label}</p>
                                 <p className="text-xs text-muted-foreground">
-                                    Live in-browser demo slot — Appetize.io embed goes here.
+                                    Live in-browser demo slot goes here.
                                 </p>
                             </div>
                         )}
@@ -49,13 +49,29 @@ export function PhoneMockup({
     );
 }
 
-export function BrowserMockup({
-    label,
-    url,
-    href,
-    cta,
-    wide = true,
-}) {
+export function BrowserMockup({ label, url, href, cta, wide = true }) {
+    const containerRef = useRef(null);
+    const [scale, setScale] = useState(1);
+
+    // Force a desktop resolution for the iframe (16:10 aspect ratio)
+    const DESKTOP_WIDTH = 1024;
+    const DESKTOP_HEIGHT = 640;
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        // Dynamically scale the iframe down to fit the container visually
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                setScale(entry.contentRect.width / DESKTOP_WIDTH);
+            }
+        });
+
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div className={`relative mx-auto w-full ${wide ? "" : "max-w-md"}`}>
             <div className="absolute -inset-8 -z-10 rounded-3xl glow-soft" />
@@ -68,16 +84,34 @@ export function BrowserMockup({
                         {url}
                     </div>
                 </div>
-                <div className="relative aspect-16/10 w-full overflow-hidden bg-surface scrollbar-hide">
+
+                <div
+                    ref={containerRef}
+                    className="relative aspect-16/10 w-full overflow-hidden bg-surface"
+                >
                     {href ? (
-                        <iframe
-                            src={href}
-                            title={`${label} live website preview`}
-                            className="h-full w-full border-0 overflow-hidden scrollbar-hide"
-                            loading="lazy"
-                            allow="fullscreen"
-                            scrolling="no"
-                        />
+                        <div
+                            style={{
+                                width: `${DESKTOP_WIDTH}px`,
+                                height: `${DESKTOP_HEIGHT}px`,
+                                transform: `scale(${scale})`,
+                                transformOrigin: "top left",
+                                overflow: "hidden", // Clips the extra scrollbar width
+                            }}
+                        >
+                            <iframe
+                                src={href}
+                                title={`${label} live website preview`}
+                                style={{
+                                    width: `${DESKTOP_WIDTH + 20}px`, // Make iframe 20px wider than wrapper to push scrollbar out of sight
+                                    height: "100%",
+                                    border: "none",
+                                    pointerEvents: "auto" // Forces the iframe to capture scroll wheel events
+                                }}
+                                loading="lazy"
+                                allow="fullscreen"
+                            />
+                        </div>
                     ) : (
                         <div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center">
                             <p className="font-display text-lg font-semibold">{label}</p>
@@ -87,6 +121,7 @@ export function BrowserMockup({
                         </div>
                     )}
                 </div>
+
                 {href && (
                     <div className="flex justify-center border-t border-border bg-surface px-4 py-3">
                         <a
